@@ -1,0 +1,146 @@
+
+---
+
+# 📄 Here’s the detailed documentation (TEMPORARY VERSION):
+
+```asciidoc
+= SPEC-01: Smart Journey Saver Map
+:sectnums:
+:toc:
+
+== Problem Statement
+
+Modern map applications like Google Maps provide real-time routing and navigation.  
+However, they lack the simple ability to save a **specific custom journey** that a user has previously traveled — especially important in remote/rural areas where navigation can be tricky.
+
+Without this functionality:
+- Users become dependent on someone to remember the path.
+- Repeating the same route becomes difficult without external help.
+- There's no visual saving of "how I reached there before."
+
+== Our Solution
+
+This project, "Smart Journey Saver Map", allows users to:
+- Mark a source and destination (with green and red flags).
+- Save the exact path taken during the journey.
+- Revisit and replay saved paths easily.
+- Choose how to start the journey next time:
+  1. Go to original start point (green flag).
+  2. Start from current location with shortest path to destination.
+  3. Start from current location but **follow** the previously saved route.
+- Save multiple journeys, retrieve them anytime, and share routes easily.
+
+This system combines free and open-source tools for cost-effective deployment.
+
+== Tools Used
+
+- Frontend:
+  - React.js
+  - Leaflet.js (for maps)
+  - Bootstrap (for UI styling)
+- Backend:
+  - Node.js
+  - Express.js
+- Database:
+  - Supabase (PostgreSQL)
+- Hosting (Free tiers):
+  - Vercel (Frontend Hosting)
+  - Railway.app (Backend Hosting)
+- Maps Data Source:
+  - OpenStreetMap (via Leaflet)
+
+== Architecture Diagram
+
+[plantuml]
+----
+@startuml
+actor User
+
+User -> Frontend: Interacts with MapView (React + Leaflet)
+Frontend -> MapTile Server: Get OpenStreetMap tiles
+Frontend -> Backend: POST / GET Journeys (via Axios)
+
+Backend -> Supabase DB: Save and Fetch journeys
+Backend --> Frontend: Return journey info
+
+@enduml
+----
+
+System Layers:
+- Web Frontend
+- REST API Backend
+- Database Layer
+- Map Tile Server (OpenStreetMap)
+
+== Database Schema
+
+```sql
+CREATE TABLE journeys (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT,
+  user_id TEXT,
+  source JSONB,         -- { lat, lng }
+  destination JSONB,    -- { lat, lng }
+  path JSONB,           -- Array of {lat, lng}
+  transport_mode TEXT,  -- drive, walk etc.
+  created_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+== Step-by-Step: How to Build & Deploy
+
+1. **Frontend Setup (React + Leaflet)**
+   ```bash
+   npx create-react-app client
+   cd client
+   npm install leaflet react-leaflet axios react-bootstrap bootstrap
+   ```
+
+2. **Backend Setup (Node + Express)**
+   ```bash
+   mkdir server
+   cd server
+   npm init -y
+   npm install express cors dotenv @supabase/supabase-js
+   ```
+
+3. **Database Setup (Supabase)**
+   - Create account on [https://supabase.com](https://supabase.com)
+   - Create new project → Create `journeys` table using provided schema
+   - Get `SUPABASE_URL` and `SUPABASE_KEY` → Save in `.env`
+
+4. **Running Locally**
+   - Run backend:
+     ```bash
+     cd server
+     node index.js
+     ```
+   - Run frontend:
+     ```bash
+     cd client
+     npm start
+     ```
+
+5. **Deploy**
+   - Frontend → Deploy to Vercel
+   - Backend → Deploy to Railway.app
+   - Configure environment variables online properly.
+
+== Future Improvements
+
+- Multi-stop journeys (more than one stop between source and destination)
+- Sharing journeys via generated QR Codes or links
+- Adding journey notes, tags, and categories
+- User authentication (login/logout, personal journey history)
+- Group collaboration (multiple users saving same journey)
+- Offline saving of maps and journeys
+- Dark mode and themes
+- Notification reminders for saved places
+- Admin dashboard for managing journey data
+- Mobile App version (React Native or Flutter)
+
+
+✅ This document is temporary and **ready to show to anyone professionally** right now!
+
+✅ Later when you send me the list of "Final Detailed Features" — I will **upgrade** this document easily.
+
