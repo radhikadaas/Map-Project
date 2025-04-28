@@ -5,6 +5,8 @@ import axios from 'axios';
 import 'leaflet/dist/leaflet.css';
 import '../App.css'; // custom CSS
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
 const sourceIcon = new L.Icon({
   iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
   iconSize: [40, 40],
@@ -15,7 +17,6 @@ const destinationIcon = new L.Icon({
   iconSize: [40, 40],
 });
 
-// Small helper to handle click events
 const LocationMarker = ({ setSource, setDestination, path, setPath }) => {
   useMapEvents({
     click(e) {
@@ -81,7 +82,7 @@ const MapView = ({ selectedJourney, startOption }) => {
     };
 
     try {
-      await axios.post('http://localhost:5000/journeys', journeyData);
+      await axios.post(`${BACKEND_URL}/journeys`, journeyData);
       alert('Journey saved successfully!');
     } catch (err) {
       console.error(err);
@@ -96,7 +97,6 @@ const MapView = ({ selectedJourney, startOption }) => {
       setPath([]);
     }
   };
-  
 
   return (
     <div style={{ height: '100vh', width: '100%' }}>
@@ -118,12 +118,11 @@ const MapView = ({ selectedJourney, startOption }) => {
         {path.length >= 2 && <Polyline positions={path} color="blue" />}
 
         {currentLocation && (
-        <Marker position={currentLocation} icon={new L.Icon({
-            iconUrl: 'https://cdn-icons-png.flaticon.com/512/64/64113.png',
-            iconSize: [35, 35],
-        })} />
+          <Marker position={currentLocation} icon={new L.Icon({
+              iconUrl: 'https://cdn-icons-png.flaticon.com/512/64/64113.png',
+              iconSize: [35, 35],
+          })} />
         )}
-
       </MapContainer>
 
       <div className="footer-menu">

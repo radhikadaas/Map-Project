@@ -3,6 +3,8 @@ import axios from 'axios';
 import StartOptionsPopup from './StartOptionsPopup';
 import FollowJourney from './FollowJourney';
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
 const SavedJourneys = ({ onBack }) => {
   const [journeys, setJourneys] = useState([]);
   const [selectedJourney, setSelectedJourney] = useState(null);
@@ -12,7 +14,7 @@ const SavedJourneys = ({ onBack }) => {
   useEffect(() => {
     async function fetchJourneys() {
       try {
-        const response = await axios.get('http://localhost:5000/journeys');
+        const response = await axios.get(`${BACKEND_URL}/journeys`);
         setJourneys(response.data);
       } catch (err) {
         console.error('Failed to load journeys', err);

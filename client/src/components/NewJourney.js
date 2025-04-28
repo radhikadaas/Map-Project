@@ -4,6 +4,8 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import axios from 'axios';
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
 const NewJourney = ({ onBack }) => {
   const [currentLocation, setCurrentLocation] = useState(null);
   const [path, setPath] = useState([]);
@@ -40,7 +42,7 @@ const NewJourney = ({ onBack }) => {
       alert('Geolocation is not supported!');
       return;
     }
-  
+
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const loc = {
@@ -48,7 +50,7 @@ const NewJourney = ({ onBack }) => {
           lng: position.coords.longitude,
         };
         setCurrentLocation(loc);
-        setPath([loc]); // Start path with real live location
+        setPath([loc]);
       },
       (error) => {
         console.error(error);
@@ -58,7 +60,7 @@ const NewJourney = ({ onBack }) => {
         enableHighAccuracy: true,
       }
     );
-  
+
     const id = navigator.geolocation.watchPosition(
       (position) => {
         const loc = {
@@ -77,11 +79,10 @@ const NewJourney = ({ onBack }) => {
         timeout: 5000,
       }
     );
-  
+
     setTracking(true);
     setWatchId(id);
   };
-  
 
   const stopTracking = async () => {
     if (watchId !== null) {
@@ -109,7 +110,7 @@ const NewJourney = ({ onBack }) => {
       };
 
       try {
-        await axios.post('http://localhost:5000/journeys', journeyData);
+        await axios.post(`${BACKEND_URL}/journeys`, journeyData);
         alert('Journey saved successfully!');
         onBack();
       } catch (err) {
