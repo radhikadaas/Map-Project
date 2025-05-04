@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import axios from 'axios';
 import L from 'leaflet';
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 const FollowJourney = ({ journey, option, onBack }) => {
   const [path, setPath] = useState([]);
@@ -33,7 +34,7 @@ const FollowJourney = ({ journey, option, onBack }) => {
 
   const fetchPathFromServer = async (current, journeyId, target, savedPath = []) => {
     try {
-      const response = await axios.post('http://localhost:5000/route-from-current', {
+      const response = await axios.post(`${BACKEND_URL}/route-from-current`, {
         current,
         journey_id: journeyId,
         target
