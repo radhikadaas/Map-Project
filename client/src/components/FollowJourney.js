@@ -24,18 +24,19 @@ const FollowJourney = ({ journey, option, onBack }) => {
       setCurrentLocation(userLoc);
 
       if (option === 'reach_source') {
-        fetchPath(userLoc, journey.source, journey.path);
+        fetchPathFromServer(userLoc, journey.id, 'source', journey.path);
       } else if (option === 'shortest_path') {
-        fetchPath(userLoc, journey.destination);
+        fetchPathFromServer(userLoc, journey.id, 'destination');
       }
     });
   }, [journey, option]);
 
-  const fetchPath = async (start, end, savedPath = []) => {
+  const fetchPathFromServer = async (current, journeyId, target, savedPath = []) => {
     try {
-      const response = await axios.post('http://localhost:5000/route', {
-        source: start,
-        destination: end,
+      const response = await axios.post('http://localhost:5000/route-from-current', {
+        current,
+        journey_id: journeyId,
+        target
       });
 
       const routeCoordinates = response.data.features[0].geometry.coordinates.map(coord => ({
@@ -43,7 +44,7 @@ const FollowJourney = ({ journey, option, onBack }) => {
         lng: coord[0],
       }));
 
-      if (savedPath.length > 0) {
+      if (savedPath.length > 0 && target === 'source') {
         setPath([...routeCoordinates, ...savedPath]);
       } else {
         setPath(routeCoordinates);
@@ -69,7 +70,6 @@ const FollowJourney = ({ journey, option, onBack }) => {
         setCurrentLocation(userLoc);
 
         if (path.length > 0) {
-          // Find nearest path point
           const nearestIndex = path.findIndex(p =>
             Math.abs(p.lat - userLoc.lat) < 0.0005 && Math.abs(p.lng - userLoc.lng) < 0.0005
           );

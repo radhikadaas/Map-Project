@@ -85,5 +85,57 @@ app.post('/route', async (req, res) => {
   }
 });
 
+// 5. Get Route from Current Location to Source/Destination
+app.post('/route-from-current', async (req, res) => {
+  const { current, journey_id, target } = req.body;
+  // current = { lat, lng }
+  // target = 'source' | 'destination'
 
-app.listen(5000, () => console.log('Server running on http://localhost:5000'));
+  if (!current || !journey_id || !target) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+    // Get journey
+    const { data: journey, error } = await supabase
+      .from('journeys')
+      .select('source, destination')
+      .eq('id', journey_id)
+      .single();
+
+    if (error || !journey) {
+      return res.status(404).json({ error: 'Journey not found' });
+    }
+
+    const toCoord = target === 'source' ? journey.source : journey.destination;
+    if (!toCoord || !toCoord.lat || !toCoord.lng) {
+      return res.status(400).json({ error: 'Invalid journey coordinate' });
+    }
+
+    // Call ORS API
+    const orsResponse = await axios.post(
+      'https://api.openrouteservice.org/v2/directions/driving-car/geojson',
+      {
+        coordinates: [
+          [current.lng, current.lat],
+          [toCoord.lng, toCoord.lat]
+        ]
+      },
+      {
+        headers: {
+          Authorization: ORS_API_KEY,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    res.json(orsResponse.data);
+  } catch (err) {
+    console.error(err.response?.data || err.message);
+    res.status(500).json({ error: 'Failed to fetch route from ORS' });
+  }
+});
+
+
+
+app.listen(3000, () => console.log('Server running on http://localhost:3000'));
